@@ -4,6 +4,7 @@
   SPDX-License-Identifier: MIT
 -->
 <Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\wdk.props" />
   <!-- Project-specific configurations; common ones (Debug/Release x64/ARM64) are in Directory.Build.props -->
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="NativeOnlyDebug|x64">

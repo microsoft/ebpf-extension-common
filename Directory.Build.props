@@ -36,7 +36,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <AdditionalOptions>/ZH:SHA_256 /we4062 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &lt; '18.0'">/ZH:SHA_256 /we4062 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '18.0'">/ZH:SHA_256 /we4062 /wd4875 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(WdkContentRoot)\Include\$(WindowsTargetPlatformVersion)\km;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
