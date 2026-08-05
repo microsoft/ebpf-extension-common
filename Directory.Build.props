@@ -26,8 +26,8 @@
   </ItemGroup>
   <Import Project="$(SolutionDir)wdk.props" Condition="'$(MSBuildProjectExtension)'=='.vcxproj'"/>
   <PropertyGroup Condition="'$(MSBuildProjectExtension)'=='.vcxproj'">
-    <EbpfExtPlatformToolset Condition="'$(EbpfExtPlatformToolset)' == '' and '$(VisualStudioVersion)' &gt;= '18.0'">v145</EbpfExtPlatformToolset>
-    <EbpfExtPlatformToolset Condition="'$(EbpfExtPlatformToolset)' == ''">v143</EbpfExtPlatformToolset>
+    <EbpfExtPlatformToolset Condition="'$(EbpfExtPlatformToolset)' == '' and '$(MSBuildAssemblyVersion)' &gt;= '18.0'">v145</EbpfExtPlatformToolset>
+    <EbpfExtPlatformToolset Condition="'$(EbpfExtPlatformToolset)' == '' and '$(MSBuildAssemblyVersion)' &lt; '18.0'">v143</EbpfExtPlatformToolset>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -40,8 +40,8 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <ControlFlowGuard>Guard</ControlFlowGuard>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &lt; '18.0'">/ZH:SHA_256 /we4062 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalOptions Condition="'$(VisualStudioVersion)' &gt;= '18.0'">/ZH:SHA_256 /we4062 /wd4875 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(MSBuildAssemblyVersion)' &lt; '18.0'">/ZH:SHA_256 /we4062 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions Condition="'$(MSBuildAssemblyVersion)' &gt;= '18.0'">/ZH:SHA_256 /we4062 /wd4875 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(WdkContentRoot)\Include\$(WindowsTargetPlatformVersion)\km;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
