@@ -115,8 +115,14 @@ jobs:
 
     - name: Build
       if: steps.skip_check.outputs.should_skip != 'true'
+      # Run the Restore target as well as Build. The packages.config restore above only covers
+      # this repo's own packages; the usersim projects built by this solution use
+      # PackageReference, and their Windows SDK / WDK packages are restored by MSBuild's Restore
+      # target. Without it the build fails with MSB8036 ("The Windows SDK version 10.0.28000.0
+      # was not found"), because the VS 2026 SDK is not installed on the runner image and has to
+      # come from NuGet. This mirrors what usersim's own CI does.
       run: |
-        msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} ${{ env.SOLUTION_FILE_PATH }}
+        msbuild /m /t:Restore,Build /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} ${{ env.SOLUTION_FILE_PATH }}
 
     - name: Zip Build Output
       if: always() && (steps.skip_check.outputs.should_skip != 'true')
