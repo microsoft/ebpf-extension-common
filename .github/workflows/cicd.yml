@@ -47,6 +47,6 @@ jobs:
       name: ebpf_ext_rundown_test
       test_command: .\ebpf_ext_rundown_test.exe -d yes
       build_artifact: Build-x64
-      environment: windows-2022
+      environment: windows-2025
       gather_dumps: true
       configurations: '["Debug", "Release"]'
