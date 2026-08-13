@@ -53,7 +53,11 @@ jobs:
       shell: cmd
       run: |
         set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
-        for /f "usebackq delims=" %%i in (`"%VSWHERE%" -latest -version "[18.0,19.0)" -property installationPath`) do set "VSINSTALLPATH=%%i"
+        rem Write vswhere's output to a file rather than using a for/f loop: the ')' in the
+        rem version range would otherwise be parsed as the closing paren of the for/f 'in (...)'
+        rem clause, which breaks the quoting around the vswhere path.
+        "%VSWHERE%" -latest -version "[18.0,19.0)" -property installationPath > "%TEMP%\vsinstallpath.txt"
+        set /p VSINSTALLPATH=<"%TEMP%\vsinstallpath.txt"
         if not defined VSINSTALLPATH (
           echo Could not locate a Visual Studio 2026 installation via vswhere.
           exit /b 1
