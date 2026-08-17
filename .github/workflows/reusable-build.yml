@@ -29,7 +29,7 @@ jobs:
     strategy:
       matrix:
         configurations: ${{ fromJSON(inputs.configurations) }}
-    runs-on: windows-2022
+    runs-on: windows-2025
     env:
       SOLUTION_FILE_PATH: ebpf_extension_common.sln
       BUILD_ARTIFACT_NAME: ${{ inputs.build_artifact }}
@@ -52,7 +52,18 @@ jobs:
       if: steps.skip_check.outputs.should_skip != 'true'
       shell: cmd
       run: |
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+        rem Write vswhere's output to a file rather than using a for/f loop: the ')' in the
+        rem version range would otherwise be parsed as the closing paren of the for/f 'in (...)'
+        rem clause, which breaks the quoting around the vswhere path.
+        "%VSWHERE%" -latest -version "[18.0,19.0)" -property installationPath > "%TEMP%\vsinstallpath.txt"
+        set /p VSINSTALLPATH=<"%TEMP%\vsinstallpath.txt"
+        if not defined VSINSTALLPATH (
+          echo Could not locate a Visual Studio 2026 installation via vswhere.
+          exit /b 1
+        )
+        echo Visual Studio install path: %VSINSTALLPATH%
+        call "%VSINSTALLPATH%\VC\Auxiliary\Build\vcvars64.bat"
         powershell.exe "echo 'msvc_tools_path=%VCToolsInstallDir%' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
         powershell.exe "echo 'msvc_tools_version=%VCToolsVersion%' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
 
@@ -76,6 +87,9 @@ jobs:
       uses: microsoft/setup-msbuild@v2
       with:
         msbuild-architecture: x64
+        # Pin to Visual Studio 2026 (toolset v145, WDK 10.0.28000) rather than taking whatever
+        # the image happens to ship, so wdk.props selects a matching toolset and WDK version.
+        vs-version: '[18.0,19.0)'
 
     - name: Generate Catch2 build files
       if: steps.skip_check.outputs.should_skip != 'true'
@@ -83,7 +97,7 @@ jobs:
       # (see RuntimeLibrary in Directory.Build.props); otherwise linking the test
       # executable fails with LNK2038 RuntimeLibrary mismatch.
       run: |
-        cmake -G "Visual Studio 17 2022" -S external\Catch2 -B external\Catch2\build -DBUILD_TESTING=OFF "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>"
+        cmake -G "Visual Studio 18 2026" -S external\Catch2 -B external\Catch2\build -DBUILD_TESTING=OFF "-DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded$<$<CONFIG:Debug>:Debug>"
 
     - name: Cache nuget packages
       if: steps.skip_check.outputs.should_skip != 'true'
@@ -101,8 +115,14 @@ jobs:
 
     - name: Build
       if: steps.skip_check.outputs.should_skip != 'true'
+      # Run the Restore target as well as Build. The packages.config restore above only covers
+      # this repo's own packages; the usersim projects built by this solution use
+      # PackageReference, and their Windows SDK / WDK packages are restored by MSBuild's Restore
+      # target. Without it the build fails with MSB8036 ("The Windows SDK version 10.0.28000.0
+      # was not found"), because the VS 2026 SDK is not installed on the runner image and has to
+      # come from NuGet. This mirrors what usersim's own CI does.
       run: |
-        msbuild /m /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} ${{ env.SOLUTION_FILE_PATH }}
+        msbuild /m /t:Restore,Build /p:Configuration=${{ env.BUILD_CONFIGURATION }} /p:Platform=${{ env.BUILD_PLATFORM }} ${{ env.SOLUTION_FILE_PATH }}
 
     - name: Zip Build Output
       if: always() && (steps.skip_check.outputs.should_skip != 'true')
