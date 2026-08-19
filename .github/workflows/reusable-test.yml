@@ -59,12 +59,12 @@ jobs:
 
     steps:
     - name: Harden Runner
-      uses: step-security/harden-runner@v2
+      uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c # v2.21.0
       with:
         egress-policy: audit
 
     - id: skip_check
-      uses: fkirc/skip-duplicate-actions@v5
+      uses: fkirc/skip-duplicate-actions@b974a9395958c231af965b70070979a577efa578 # v5.3.2
       with:
         cancel_others: 'false'
         paths_ignore: '["**.md", "**/docs/**"]'
@@ -80,7 +80,7 @@ jobs:
 
     - name: Download build artifact
       if: steps.skip_check.outputs.should_skip != 'true'
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
       with:
         name: ${{ inputs.build_artifact }}-${{ matrix.configurations }}
         path: ${{ github.workspace }}
@@ -114,14 +114,14 @@ jobs:
 
     - name: Check for crash dumps
       if: always() && (steps.skip_check.outputs.should_skip != 'true')
-      uses: andstor/file-existence-action@v3
+      uses: andstor/file-existence-action@558493d6c74bf472d87c84eab196434afc2fa029 # v3.1.0
       id: check_dumps
       with:
         files: ${{ env.DUMP_PATH }}/*.dmp
 
     - name: Upload any crash dumps
       if: always() && (steps.skip_check.outputs.should_skip != 'true') && (steps.check_dumps.outputs.files_exists == 'true') && (inputs.gather_dumps == true)
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       id: upload_crash_dumps
       with:
         name: Crash-Dumps-${{ env.NAME }}-${{ env.BUILD_PLATFORM }}-${{ env.BUILD_CONFIGURATION }}
