@@ -67,7 +67,7 @@ jobs:
         powershell.exe "echo 'msvc_tools_path=%VCToolsInstallDir%' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
         powershell.exe "echo 'msvc_tools_version=%VCToolsVersion%' | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append"
 
-    - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       if: steps.skip_check.outputs.should_skip != 'true'
       with:
         repository: ${{ github.repository }}
@@ -84,7 +84,7 @@ jobs:
         New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" -Name "DumpFolder" -Value "c:\dumps\${{ env.BUILD_PLATFORM }}\${{ env.BUILD_CONFIGURATION }}" -PropertyType ExpandString -ErrorAction SilentlyContinue
 
     - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2.0.0
+      uses: microsoft/setup-msbuild@30375c66a4eea26614e0d39710365f22f8b0af57 # v3.0.0
       with:
         msbuild-architecture: x64
         # Pin to Visual Studio 2026 (toolset v145, WDK 10.0.28000) rather than taking whatever
@@ -101,7 +101,7 @@ jobs:
 
     - name: Cache nuget packages
       if: steps.skip_check.outputs.should_skip != 'true'
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       env:
         cache-name: cache-nuget-modules
       with:
@@ -131,7 +131,7 @@ jobs:
 
     - name: Upload Build Output
       if: always() && (steps.skip_check.outputs.should_skip != 'true')
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: ${{ inputs.build_artifact }}-${{ matrix.configurations }}
         path: ${{ github.workspace }}/build-${{ matrix.configurations }}.zip
@@ -146,7 +146,7 @@ jobs:
 
     - name: Upload any crash dumps
       if: (success() || failure()) && (steps.skip_check.outputs.should_skip != 'true') && (steps.check_dumps.outputs.files_exists == 'true')
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: Crash-Dumps-Build-${{ env.BUILD_PLATFORM }}-${{ env.BUILD_CONFIGURATION }}
         path: c:/dumps/${{ env.BUILD_PLATFORM }}/${{ env.BUILD_CONFIGURATION }}
