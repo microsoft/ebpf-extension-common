@@ -42,7 +42,6 @@
       <ControlFlowGuard>Guard</ControlFlowGuard>
       <AdditionalOptions Condition="'$(MSBuildAssemblyVersion)' &lt; '18.0'">/ZH:SHA_256 /we4062 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalOptions Condition="'$(MSBuildAssemblyVersion)' &gt;= '18.0'">/ZH:SHA_256 /we4062 /wd4875 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(WdkContentRoot)\Include\$(WindowsTargetPlatformVersion)\km;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <CETCompat>true</CETCompat>
