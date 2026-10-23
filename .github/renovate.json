@@ -4,14 +4,15 @@
     "config:recommended",
     "helpers:pinGitHubActionDigests"
   ],
-  "schedule": ["on tuesday"],
+  "schedule": ["* * * * 2"],
   "git-submodules": {
     "enabled": true
   },
   "packageRules": [
     {
       "matchManagers": ["github-actions"],
-      "groupName": "github-actions"
+      "groupName": "github-actions",
+      "minimumReleaseAge": "7 days"
     },
     {
       "matchManagers": ["git-submodules"],
